@@ -1,0 +1,116 @@
+// Defining enums
+Enum Rule {
+  READ
+  WRITE
+  ADMIN
+  OWNER
+}
+
+// Defining tables
+Table tkb_info {
+  id string [pk]
+  name string
+  nam string
+  tkb_describe string
+  thumbnails string
+  is_client boolean
+  rule Rule
+  created timestamp
+}
+
+Table nhom_hoc {
+  id_to_hoc string [pk]
+  ma_mon string
+  ten_mon string
+  so_tc int
+  nhom string
+  tkb json // Array of TkbTiet: {thu: number, tbd: number, tkt: number, phong: string, gv: string, th: boolean}
+}
+
+Table lop {
+  id string [pk]
+  display_name string
+}
+
+Table khoa {
+  id string [pk]
+  display_name string
+}
+
+Table mon_hoc {
+  id string [pk]
+  display_name string
+}
+
+Table member {
+  tkb_id string [ref: > tkb_info.id]
+  user_id string
+  display_name string
+  rule Rule
+  indexes {
+    (tkb_id, user_id) [pk]
+  }
+}
+
+Table tkb_content {
+  tkb_id string [ref: > tkb_info.id]
+  id_to_hoc string [ref: > nhom_hoc.id_to_hoc]
+  indexes {
+    (tkb_id, id_to_hoc) [pk]
+  }
+}
+
+Table tkb_content_mmh {
+  tkb_id string [ref: > tkb_info.id]
+  ma_mon string [ref: > mon_hoc.id]
+  indexes {
+    (tkb_id, ma_mon) [pk]
+  }
+}
+
+Table nhom_hoc_lop {
+  id_to_hoc string [ref: > nhom_hoc.id_to_hoc]
+  lop_id string [ref: > lop.id]
+  indexes {
+    (id_to_hoc, lop_id) [pk]
+  }
+}
+
+Table nhom_hoc_khoa {
+  id_to_hoc string [ref: > nhom_hoc.id_to_hoc]
+  khoa_id string [ref: > khoa.id]
+  indexes {
+    (id_to_hoc, khoa_id) [pk]
+  }
+}
+
+Table mon_hoc_lop {
+  mon_hoc_id string [ref: > mon_hoc.id]
+  lop_id string [ref: > lop.id]
+  indexes {
+    (mon_hoc_id, lop_id) [pk]
+  }
+}
+
+Table mon_hoc_khoa {
+  mon_hoc_id string [ref: > mon_hoc.id]
+  khoa_id string [ref: > khoa.id]
+  indexes {
+    (mon_hoc_id, khoa_id) [pk]
+  }
+}
+
+// Relationships
+Ref: tkb_info.id - member.tkb_id
+Ref: tkb_info.id - tkb_content.tkb_id
+Ref: tkb_info.id - tkb_content_mmh.tkb_id
+Ref: nhom_hoc.id_to_hoc - tkb_content.id_to_hoc
+Ref: nhom_hoc.id_to_hoc - nhom_hoc_lop.id_to_hoc
+Ref: nhom_hoc.id_to_hoc - nhom_hoc_khoa.id_to_hoc
+Ref: lop.id - nhom_hoc_lop.lop_id
+Ref: khoa.id - nhom_hoc_khoa.khoa_id
+Ref: mon_hoc.id - tkb_content_mmh.ma_mon
+Ref: mon_hoc.id - mon_hoc_lop.mon_hoc_id
+Ref: mon_hoc.id - mon_hoc_khoa.mon_hoc_id
+Ref: lop.id - mon_hoc_lop.lop_id
+Ref: khoa.id - mon_hoc_khoa.khoa_id
